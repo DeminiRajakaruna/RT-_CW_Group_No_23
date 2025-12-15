@@ -114,3 +114,40 @@ def estimate_2d_pose(self, frame):
         keypoints_3d = keypoints_3d - keypoints_3d[11:13].mean(axis=0)
         
         return keypoints_3d
+
+  def _preprocess_frame(self, frame):
+        """
+        Preprocess frame for 2D pose estimation
+        Resize to 384×288 as mentioned in paper
+        """
+        resized = cv2.resize(frame, (384, 288))
+        normalized = resized.astype(np.float32) / 255.0
+        return normalized
+    
+    def calculate_pdj(self, pred_keypoints, gt_keypoints, threshold=0.2):
+        """
+        Calculate PDJ (Percent of Detected Joints) metric
+        As described in Section 3.2
+        
+        Args:
+            pred_keypoints: (N, 17, 2) predicted keypoints
+            gt_keypoints: (N, 17, 2) ground truth keypoints
+            threshold: normalized distance threshold (default: 0.2)
+        """
+        # Calculate torso diameter (shoulder center to hip center)
+        shoulder_center = (gt_keypoints[:, 5, :] + gt_keypoints[:, 6, :]) / 2
+        hip_center = (gt_keypoints[:, 11, :] + gt_keypoints[:, 12, :]) / 2
+        torso_diameter = np.linalg.norm(shoulder_center - hip_center, axis=1)
+        
+        # Calculate distances
+        distances = np.linalg.norm(pred_keypoints - gt_keypoints, axis=2)
+        
+        # Normalize by torso diameter
+        normalized_distances = distances / torso_diameter[:, np.newaxis]
+        
+        # Count detections within threshold
+        detected = normalized_distances <= threshold
+        pdj = np.mean(detected) * 100
+        
+        return pdj
+    
