@@ -14,6 +14,12 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 from scipy.spatial.distance import euclidean
 import matplotlib.pyplot as plt
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+video_path = os.path.join(BASE_DIR, "old.mp4")
+cap = cv2.VideoCapture(video_path)
+
 
 class OldMethodTracker:
     """
@@ -270,7 +276,7 @@ class OldMethodTracker:
             # If similarity is low, might need manual intervention
             if similarity < 0.3:
                 self.manual_interventions += 1
-                print(f"⚠️ Manual intervention needed for player {i}")
+                print(f" Manual intervention needed for player {i}")
             
             new_positions.append(color_pos)
         
@@ -284,9 +290,9 @@ class OldMethodTracker:
             method: 'A' (motion), 'B' (color), or 'C' (combined)
             num_players: Number of players to track
         """
-        print("="*70)
+        print(" ")
         print(f" OLD METHOD (2000) - Method {method}")
-        print("="*70)
+        print(" ")
         
         # Read first frame as reference
         ret, first_frame = self.cap.read()
@@ -357,9 +363,9 @@ class OldMethodTracker:
         self.cap.release()
         
         # Print results matching Table 1
-        print("\n" + "="*70)
+        print(" ")
         print(" RESULTS (Table 1 format)")
-        print("="*70)
+        print(" ")
         print(f"Method: {method}")
         print(f"Interventions: {self.manual_interventions}")
         print(f"Total Distance: {total_distance:.1f} pixels")
@@ -397,17 +403,17 @@ class OldMethodTracker:
         plt.gca().invert_yaxis()  # Invert Y axis (image coordinates)
         plt.tight_layout()
         plt.savefig(output_path, dpi=300)
-        print(f"\n✓ Trajectories saved to {output_path}")
+        print(f"\n Trajectories saved to {output_path}")
 
 
 if __name__ == "__main__":
     # Example usage
-    print("\n" + "="*70)
+    print(" ")
     print(" OLD METHOD (2000) IMPLEMENTATION")
     print(" Based on: Perš & Kovačič (2000)")
-    print("="*70)
+    print(" ")
     
-    video_path = "old.mp4"
+    #video_path = "old.mp4"
     
     try:
         tracker = OldMethodTracker(video_path)
@@ -420,9 +426,9 @@ if __name__ == "__main__":
                                           f'trajectories_method_{method}.png')
             print("\n")
         
-        print("="*70)
+        print(" ")
         print(" COMPARISON WITH TABLE 1")
-        print("="*70)
+        print(" ")
         print("Method A (Motion Detection):")
         print("  Paper: 45 interventions, 80m noise, 0.424 sec/frame")
         print("  Our Implementation: See above results")
@@ -434,5 +440,5 @@ if __name__ == "__main__":
         print("  Our Implementation: See above results")
         
     except FileNotFoundError:
-        print(f"\n❌ Error: Video file '{video_path}' not found!")
+        print(f"\n Error: Video file '{video_path}' not found!")
         print("Please provide old.mp4 video file")
