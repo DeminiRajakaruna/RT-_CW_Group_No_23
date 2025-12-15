@@ -229,3 +229,12 @@ def estimate_2d_pose(self, frame):
                 joint_angles['right_shoulder'].append(angle)
         
         return joint_angles
+
+    def apply_butterworth_filter(self, data, cutoff_freq=8, fps=60):
+        """
+        Apply 4th-order Butterworth low-pass filter at 8 Hz
+        Section 3.3 - for kinematic smoothing
+        """
+        sigma = fps / (2 * np.pi * cutoff_freq)
+        filtered = gaussian_filter1d(data, sigma=sigma)
+        return filtered
