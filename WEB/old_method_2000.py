@@ -14,7 +14,6 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 from scipy.spatial.distance import euclidean
 import matplotlib.pyplot as plt
-
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
