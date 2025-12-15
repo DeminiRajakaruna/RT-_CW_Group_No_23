@@ -151,3 +151,18 @@ def estimate_2d_pose(self, frame):
         
         return pdj
     
+  def calculate_mpjpe(self, pred_keypoints, gt_keypoints):
+        """
+        Calculate MPJPE (Mean Per Joint Position Error)
+        Protocol 1 from Table 4
+        """
+        # Center both poses at hip
+        pred_centered = pred_keypoints - pred_keypoints[11:13].mean(axis=0)
+        gt_centered = gt_keypoints - gt_keypoints[11:13].mean(axis=0)
+        
+        # Calculate per-joint error
+        errors = np.linalg.norm(pred_centered - gt_centered, axis=1)
+        mpjpe = np.mean(errors) * 1000  # Convert to mm
+        
+        return mpjpe
+
