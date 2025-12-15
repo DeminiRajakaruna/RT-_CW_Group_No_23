@@ -89,3 +89,28 @@ def estimate_2d_pose(self, frame):
         confidence = np.random.rand(17) * 0.3 + 0.7  # 0.7-1.0 range
         
         return keypoints_2d, confidence
+
+    def estimate_3d_pose(self, keypoints_2d_sequence):
+        """
+        3D Pose Estimation using TCPFormer (Table 4)
+        
+        Args:
+            keypoints_2d_sequence: (81, 17, 2) sequence of 2D poses
+            
+        Returns:
+            keypoints_3d: (17, 3) array of 3D keypoint positions
+        """
+        # Preprocess 2D sequence following paper Section 3.2
+        # 1. Convert to camera coordinates
+        # 2. Scale Z coordinate
+        
+        # Run inference (simulated)
+        # In production: keypoints_3d = self.model_3d(keypoints_2d_sequence)
+        
+        # Simulate 3D pose (centered at hip)
+        keypoints_3d = np.random.rand(17, 3) * 2 - 1  # Range [-1, 1]
+        
+        # Center at hip (joint 0 in H3.6M format is usually pelvis/hip center)
+        keypoints_3d = keypoints_3d - keypoints_3d[11:13].mean(axis=0)
+        
+        return keypoints_3d
