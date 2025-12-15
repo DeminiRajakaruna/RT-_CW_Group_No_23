@@ -413,7 +413,7 @@ if __name__ == "__main__":
     print(" Based on: Perš & Kovačič (2000)")
     print(" ")
     
-    
+    #video_path = "old.mp4"
     
     try:
         tracker = OldMethodTracker(video_path)
