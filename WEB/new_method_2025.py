@@ -166,3 +166,21 @@ def estimate_2d_pose(self, frame):
         
         return mpjpe
 
+    def calculate_joint_angle(self, p1, p2, p3):
+        """
+        Calculate angle at joint p2 formed by points p1-p2-p3
+        Used in kinematic validation (Section 3.3)
+        """
+        v1 = p1 - p2
+        v2 = p3 - p2
+        
+        v1_norm = v1 / (np.linalg.norm(v1) + 1e-8)
+        v2_norm = v2 / (np.linalg.norm(v2) + 1e-8)
+        
+        cos_angle = np.dot(v1_norm, v2_norm)
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        angle = np.arccos(cos_angle)
+        
+        return np.degrees(angle)
+
+
