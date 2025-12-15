@@ -318,3 +318,55 @@ def estimate_2d_pose(self, frame):
         
         return results
         
+    def visualize_3d_pose(self, pose_3d, frame_idx, output_path=None):
+        """
+        Visualize 3D pose skeleton
+        """
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection='3d')
+        
+        # COCO skeleton connections
+        connections = [
+            (5, 7), (7, 9),    # Left arm
+            (6, 8), (8, 10),   # Right arm
+            (5, 6),            # Shoulders
+            (5, 11), (6, 12),  # Torso
+            (11, 12),          # Hips
+            (11, 13), (13, 15), # Left leg
+            (12, 14), (14, 16)  # Right leg
+        ]
+        
+        # Plot skeleton
+        for conn in connections:
+            if conn[0] < len(pose_3d) and conn[1] < len(pose_3d):
+                points = pose_3d[[conn[0], conn[1]]]
+                ax.plot(points[:, 0], points[:, 1], points[:, 2],
+                       'b-', linewidth=2)
+        
+        # Plot joints
+        ax.scatter(pose_3d[:, 0], pose_3d[:, 1], pose_3d[:, 2],
+                  c='r', s=50, marker='o')
+        
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title(f'3D Pose - Frame {frame_idx}', fontsize=14, fontweight='bold')
+        
+        # Set equal aspect ratio
+        max_range = np.array([pose_3d[:,0].max()-pose_3d[:,0].min(),
+                             pose_3d[:,1].max()-pose_3d[:,1].min(),
+                             pose_3d[:,2].max()-pose_3d[:,2].min()]).max() / 2.0
+        
+        mid_x = (pose_3d[:,0].max()+pose_3d[:,0].min()) * 0.5
+        mid_y = (pose_3d[:,1].max()+pose_3d[:,1].min()) * 0.5
+        mid_z = (pose_3d[:,2].max()+pose_3d[:,2].min()) * 0.5
+        
+        ax.set_xlim(mid_x - max_range, mid_x + max_range)
+        ax.set_ylim(mid_y - max_range, mid_y + max_range)
+        ax.set_zlim(mid_z - max_range, mid_z + max_range)
+        
+        if output_path:
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        
+        plt.close()
+    
