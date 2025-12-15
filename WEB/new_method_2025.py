@@ -183,4 +183,49 @@ def estimate_2d_pose(self, frame):
         
         return np.degrees(angle)
 
-
+    def extract_joint_angles(self, poses_3d):
+        """
+        Extract key joint angles for kinematic analysis
+        Section 5.3 and Table 5
+        """
+        joint_angles = {
+            'left_elbow': [],
+            'right_elbow': [],
+            'left_knee': [],
+            'right_knee': [],
+            'left_shoulder': [],
+            'right_shoulder': []
+        }
+        
+        for pose in poses_3d:
+            # Left elbow: shoulder(5) - elbow(7) - wrist(9)
+            if np.all(pose[[5, 7, 9]] != 0):
+                angle = self.calculate_joint_angle(pose[5], pose[7], pose[9])
+                joint_angles['left_elbow'].append(angle)
+            
+            # Right elbow: shoulder(6) - elbow(8) - wrist(10)
+            if np.all(pose[[6, 8, 10]] != 0):
+                angle = self.calculate_joint_angle(pose[6], pose[8], pose[10])
+                joint_angles['right_elbow'].append(angle)
+            
+            # Left knee: hip(11) - knee(13) - ankle(15)
+            if np.all(pose[[11, 13, 15]] != 0):
+                angle = self.calculate_joint_angle(pose[11], pose[13], pose[15])
+                joint_angles['left_knee'].append(angle)
+            
+            # Right knee: hip(12) - knee(14) - ankle(16)
+            if np.all(pose[[12, 14, 16]] != 0):
+                angle = self.calculate_joint_angle(pose[12], pose[14], pose[16])
+                joint_angles['right_knee'].append(angle)
+            
+            # Left shoulder: elbow(7) - shoulder(5) - hip(11)
+            if np.all(pose[[7, 5, 11]] != 0):
+                angle = self.calculate_joint_angle(pose[7], pose[5], pose[11])
+                joint_angles['left_shoulder'].append(angle)
+            
+            # Right shoulder: elbow(8) - shoulder(6) - hip(12)
+            if np.all(pose[[8, 6, 12]] != 0):
+                angle = self.calculate_joint_angle(pose[8], pose[6], pose[12])
+                joint_angles['right_shoulder'].append(angle)
+        
+        return joint_angles
