@@ -68,3 +68,24 @@ class NewMethodTracker:
         # self.model_3d = load_tcpformer_model()
         
         print("\n✓ Models loaded successfully")
+
+def estimate_2d_pose(self, frame):
+        """
+        2D Pose Estimation using MogaNet (Table 3)
+        
+        Returns:
+            keypoints_2d: (17, 2) array of 2D keypoint positions
+            confidence: (17,) array of confidence scores
+        """
+        # Preprocess frame
+        input_tensor = self._preprocess_frame(frame)
+        
+        # Run inference (simulated)
+        # In production: keypoints_2d, conf = self.model_2d(input_tensor)
+        
+        # Simulate detection
+        h, w = frame.shape[:2]
+        keypoints_2d = np.random.rand(17, 2) * np.array([w, h])
+        confidence = np.random.rand(17) * 0.3 + 0.7  # 0.7-1.0 range
+        
+        return keypoints_2d, confidence
