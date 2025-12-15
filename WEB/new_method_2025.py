@@ -238,3 +238,83 @@ def estimate_2d_pose(self, frame):
         sigma = fps / (2 * np.pi * cutoff_freq)
         filtered = gaussian_filter1d(data, sigma=sigma)
         return filtered
+
+    def process_video(self, extract_kinematics=True):
+        """
+        Process entire video with deep learning methods
+        
+        Returns:
+            Dictionary with poses_2d, poses_3d, and kinematics
+        """
+        print("\n" + "="*70)
+        print(" NEW METHOD (2025) - DEEP LEARNING PIPELINE")
+        print("="*70)
+        
+        self.load_models()
+        
+        all_poses_2d = []
+        all_poses_3d = []
+        
+        frame_count = 0
+        sequence_buffer = []  # For 81-frame temporal window
+        
+        print("\nProcessing frames...")
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+            
+            frame_count += 1
+            
+            # 2D Pose Estimation
+            keypoints_2d, confidence = self.estimate_2d_pose(frame)
+            all_poses_2d.append(keypoints_2d)
+            
+            # Buffer for 3D estimation (needs 81 frames)
+            sequence_buffer.append(keypoints_2d)
+            if len(sequence_buffer) > 81:
+                sequence_buffer.pop(0)
+            
+            # 3D Pose Estimation (when buffer is full)
+            if len(sequence_buffer) == 81:
+                keypoints_3d = self.estimate_3d_pose(np.array(sequence_buffer))
+                all_poses_3d.append(keypoints_3d)
+            
+            if frame_count % 60 == 0:
+                print(f"  Processed {frame_count} frames...")
+        
+        self.cap.release()
+        
+        print(f"\n✓ Processed {frame_count} frames")
+        print(f"  • 2D Poses: {len(all_poses_2d)}")
+        print(f"  • 3D Poses: {len(all_poses_3d)}")
+        
+        results = {
+            'poses_2d': np.array(all_poses_2d),
+            'poses_3d': np.array(all_poses_3d),
+            'frame_count': frame_count
+        }
+        
+        # Extract kinematics if requested
+        if extract_kinematics and len(all_poses_3d) > 0:
+            print("\n" + "="*70)
+            print(" KINEMATIC ANALYSIS")
+            print("="*70)
+            
+            joint_angles = self.extract_joint_angles(all_poses_3d)
+            
+            # Filter angles
+            for joint_name in joint_angles:
+                if len(joint_angles[joint_name]) > 0:
+                    joint_angles[joint_name] = self.apply_butterworth_filter(
+                        np.array(joint_angles[joint_name])
+                    )
+            
+            results['joint_angles'] = joint_angles
+            
+            print("✓ Joint angles extracted and filtered")
+            print(f"  • Upper limbs: elbows, shoulders")
+            print(f"  • Lower limbs: knees")
+        
+        return results
+        
