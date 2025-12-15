@@ -414,7 +414,6 @@ if __name__ == "__main__":
     print(" ")
     
     #video_path = "old.mp4"
-    
     try:
         tracker = OldMethodTracker(video_path)
         
@@ -440,5 +439,5 @@ if __name__ == "__main__":
         print("  Our Implementation: See above results")
         
     except FileNotFoundError:
-        print(f"\n Error: Video file '{video_path}' not found!")
+        print(f"\n Error: Video file not found!")
         print("Please provide old.mp4 video file")
